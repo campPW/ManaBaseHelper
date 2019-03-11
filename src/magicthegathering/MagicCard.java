@@ -3,14 +3,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MagicCard {
-
     private int numCopies;
     private double cmc;
     private String name;
     private HashMap<Character, Integer> coloredManaPips;
 
     public MagicCard(int numCopies, double cmc, String name) {
-
         this.numCopies = numCopies;
         this.cmc = cmc;
         this.name = name;
@@ -21,23 +19,15 @@ public class MagicCard {
         this.coloredManaPips.put('R', 0);
         this.coloredManaPips.put('G', 0);
     }
+    public String getCardName() { return this.name; }
 
-    public String getCardName() {
-
-        return this.name;
-    }
-
-    public int getNumCopies() {
-
-        return this.numCopies;
-    }
+    public int getNumCopies() { return this.numCopies; }
 
     public double getCmc(){
         return cmc;
     }
 
     public void setColoredManaPips(String coloredManaPips) {
-
         for(int i = 0; i < coloredManaPips.length(); i++) {
             char index = coloredManaPips.charAt(i);
             // ignore X costs in cards
@@ -53,7 +43,6 @@ public class MagicCard {
         }
     }
     private void addPip(char pip) {
-
         switch (pip) {
             case 'W': int whitePips = this.coloredManaPips.get('W');
             this.coloredManaPips.put('W', whitePips + 1);
