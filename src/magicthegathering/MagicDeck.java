@@ -1,9 +1,6 @@
 package magicthegathering;
-import magicthegathering.MagicCard;
-
 import java.util.ArrayList;
 
-// TODO create attribute for deck type (aggro, control, etc.)
 public class MagicDeck {
     private ArrayList<MagicCard> cards = new ArrayList<MagicCard>();
     private int deckSize;
@@ -36,9 +33,7 @@ public class MagicDeck {
             totalNumPips += mc.getNumCopies() * mc.getCmc();
         }
         average = totalNumPips / this.deckSize;
-        // TODO figure out why sometimes getting an out of bound exception
         String avgStr = Double.toString(average).substring(0,3);
         this.averageCMC = Double.parseDouble(avgStr);
     }
-
 }
