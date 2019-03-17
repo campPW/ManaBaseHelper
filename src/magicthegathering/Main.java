@@ -1,13 +1,14 @@
 package magicthegathering;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -18,13 +19,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javafx.scene.control.Button;
 import javax.net.ssl.HttpsURLConnection;
-
 import org.json.*;
 
-
-// TODO: Make sure to verify and impove error checking for entire program
 // TODO: Handle Split cards
 // TODO: Handle cards with hybrid mana
 public class Main extends Application {
@@ -44,7 +41,7 @@ public class Main extends Application {
     private Label greenLbl = new Label("Green Mana: ");
     private Label recLbl = new Label("Recommended Amount");
     private int useCount = 0;
-    private Label statusLbl = new Label("ready");
+    private Label statusLbl = new Label("Ready");
     private ProgressBar progressBar = new ProgressBar();
     @Override
     public void start(Stage stage) throws Exception {
@@ -77,6 +74,7 @@ public class Main extends Application {
         recLbl.setFont(Font.font("Courier New", 20));
         avgCMCLbl.setFont(Font.font("Courier New", 15));
         progressBar.setVisible(false);
+        openFileBtn.setTooltip(new Tooltip("Open decklist to receive mana suggestion"));
 
         openFileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -89,7 +87,7 @@ public class Main extends Application {
                 }
             }
         });
-        Scene scene = new Scene(gridPane, 415, 525);
+        Scene scene = new Scene(gridPane, 440, 525);
         stage.setScene(scene);
         stage.show();
     }
@@ -161,43 +159,42 @@ public class Main extends Application {
         }
     }
     private void createCard(int amountOfCard, String nameOfCard) {
-                // connect to Scryfall API and get card data in JSON format
-                try {
-                    URL obj = new URL(scryfallAPI + nameOfCard);
-                    HttpsURLConnection connection = (HttpsURLConnection)obj.openConnection();
-                    connection.setRequestMethod("GET");
+        // connect to Scryfall API and get card data in JSON format
+        try {
+            URL obj = new URL(scryfallAPI + nameOfCard);
+            HttpsURLConnection connection = (HttpsURLConnection)obj.openConnection();
+            connection.setRequestMethod("GET");
 
-                    StringBuilder jsonCardInfo = new StringBuilder();
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    while((line = in.readLine()) != null){
-                        jsonCardInfo.append(line);
-                    }
-                    // create json object to parse out cmc & colored mana pips
-                    JSONObject jsonObject = new JSONObject(jsonCardInfo.toString());
-                    double cmc = (double)jsonObject.get("cmc");
+            StringBuilder jsonCardInfo = new StringBuilder();
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while((line = in.readLine()) != null){
+                jsonCardInfo.append(line);
+            }
+            // create json object to parse out cmc & colored mana pips
+            JSONObject jsonObject = new JSONObject(jsonCardInfo.toString());
+            double cmc = (double)jsonObject.get("cmc");
+            // check if card is a land and return if true
+            if(cmc == 0)
+                return;
+            String manaPips = (String)jsonObject.get("mana_cost");
+            // create card object and add to card list to paint GUI
+            MagicCard mc = new MagicCard(amountOfCard, cmc, nameOfCard);
 
-                    // check if card is a land and return if true
-                    if(cmc == 0)
-                        return;
-                    String manaPips = (String)jsonObject.get("mana_cost");
-
-                    // create card object and add to card list to paint GUI
-                    MagicCard mc = new MagicCard(amountOfCard, cmc, nameOfCard);
-                    mc.setColoredManaPips(manaPips);
-                    this.cardArrayList.add(mc);
-                }
-                catch(MalformedURLException me){
-                    me.printStackTrace();
-                }
-                catch(IOException ioe) {
-                    ioe.printStackTrace();
-                }
+            System.out.println(mc.getCardName());
+            mc.setColoredManaPips(manaPips);
+            this.cardArrayList.add(mc);
+        }
+        catch(MalformedURLException me){
+            me.printStackTrace();
+        }
+        catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
     private void parseNameAndAmount(String line) {
         int numberOfEachCard = 0;
         String name = "";
-
         // parsing out amount of each unique card and that card's name
         for(int i = 0; i < line.length(); i++){
             char ch = line.charAt(i);
@@ -229,10 +226,11 @@ public class Main extends Application {
         }
         this.setManaLabels(this.landsNeeded);
     }
-    private void setManaLabels(HashMap<Character, Integer> colors){
+    private void setManaLabels(HashMap <Character, Integer> colors){
         for(Map.Entry<Character, Integer> lands : colors.entrySet()) {
             if (lands.getValue() != 0) {
                 char key = lands.getKey();
+
                 // round up if number is odd
                 if (lands.getValue() % 2 != 0) {
                     colors.replace(key, lands.getValue() + 1);
@@ -270,15 +268,12 @@ public class Main extends Application {
         this.redLbl.setText("Red Mana: ");
         this.greenLbl.setText("Green Mana: ");
         this.avgCMCLbl.setText("Average CMC: ");
+        this.statusLbl.setText("Ready");
         this.cardArrayList.clear();
         this.landsNeeded.clear();
         this.progressBar.setVisible(false);
         this.progressBar.setProgress(-1);
         this.process();
-    }
-    //TODO finish function that will factor average CMC into suggestions
-    private String adjustForCMC(String deckType){
-        return "";
     }
     static void main(String[] args) {
         launch(args);

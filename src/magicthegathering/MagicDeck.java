@@ -36,4 +36,5 @@ public class MagicDeck {
         String avgStr = Double.toString(average).substring(0,3);
         this.averageCMC = Double.parseDouble(avgStr);
     }
-}
+    }
+

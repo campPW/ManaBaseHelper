@@ -64,7 +64,6 @@ public class MagicCard {
                 break;
         }
     }
-
     public HashMap<Character, Integer> getColoredPips() {
         return this.coloredManaPips;
     }
