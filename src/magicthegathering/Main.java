@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.json.*;
-
 // TODO: Handle Split cards
-// TODO: Handle cards with hybrid mana
 public class Main extends Application {
     private final String scryfallAPI = "https://api.scryfall.com/cards/named?fuzzy=";
     private Stage stage;
@@ -244,19 +242,17 @@ public class Main extends Application {
                         whiteLbl.setText(whiteLbl.getText() + "\t" + numLands);
                         break;
                     case 'U':
-                        blueLbl.setText(blueLbl.getText() + "\t" + +numLands);
+                        blueLbl.setText(blueLbl.getText() + "\t" + numLands);
                         break;
                     case 'B':
-                        blackLbl.setText(blackLbl.getText() + "\t" + +numLands);
+                        blackLbl.setText(blackLbl.getText() + "\t" + numLands);
                         break;
                     case 'R':
-                        redLbl.setText(redLbl.getText() + "\t" + +numLands);
+                        redLbl.setText(redLbl.getText() + "\t" + numLands);
                         break;
                     case 'G':
-                        greenLbl.setText(greenLbl.getText() + "\t" + +numLands);
+                        greenLbl.setText(greenLbl.getText() + "\t" + numLands);
                         break;
-                    default:
-                        System.out.println("Color does not exist.");
                 }
             }
         }
