@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -21,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.json.*;
-// TODO: Handle Split cards
 public class Main extends Application {
     private final String scryfallAPI = "https://api.scryfall.com/cards/named?fuzzy=";
     private Stage stage;
@@ -47,9 +47,9 @@ public class Main extends Application {
         stage.setTitle("Mana Base Helper");
         gridPane.setVgap(25);
         gridPane.add(recLbl, 0, 1);
-        gridPane.add(openFileBtn, 0, 8);
-        gridPane.add(statusLbl, 3,8);
-        gridPane.add(progressBar, 2, 8);
+        gridPane.add(openFileBtn, 0, 9);
+        gridPane.add(statusLbl, 3,9);
+        gridPane.add(progressBar, 2, 9);
 
         gridPane.add(whiteLbl, 0, 2);
         gridPane.add(blueLbl, 0, 3);
@@ -85,7 +85,7 @@ public class Main extends Application {
                 }
             }
         });
-        Scene scene = new Scene(gridPane, 440, 525);
+        Scene scene = new Scene(gridPane, 440, 550);
         stage.setScene(scene);
         stage.show();
     }
@@ -107,6 +107,8 @@ public class Main extends Application {
                         statusLbl.setText("done");
                         openFileBtn.setDisable(false);
                         getColors();
+                        if(deck.getDeckFormat() == "Constructed")
+                            setConstructedLandRecommendation(deck.getAverageCMC());
                     }
                 });
                 return null;
@@ -178,8 +180,6 @@ public class Main extends Application {
             String manaPips = (String)jsonObject.get("mana_cost");
             // create card object and add to card list to paint GUI
             MagicCard mc = new MagicCard(amountOfCard, cmc, nameOfCard);
-
-            System.out.println(mc.getCardName());
             mc.setColoredManaPips(manaPips);
             this.cardArrayList.add(mc);
         }
@@ -270,6 +270,35 @@ public class Main extends Application {
         this.progressBar.setVisible(false);
         this.progressBar.setProgress(-1);
         this.process();
+    }
+    // Using recommendations from article: https://www.mtggoldfish.com/articles/brewer-s-minute-how-many-lands
+    private void setConstructedLandRecommendation(double averageCMC){
+        String total;
+        if(averageCMC < 1.0)
+            total = "17";
+        else if(averageCMC == 1.0)
+            total = "18";
+        else if(averageCMC > 1.0 && averageCMC <= 1.25)
+            total = "19";
+        else if(averageCMC > 1.25 && averageCMC <= 1.50)
+            total = "20";
+        else if(averageCMC > 1.5 && averageCMC <= 1.75)
+            total = "21 - 21";
+        else if(averageCMC > 1.75 && averageCMC <= 2.00)
+            total = "23";
+        else if(averageCMC > 2.00 && averageCMC <= 2.25)
+            total = "24";
+        else if(averageCMC > 2.25 && averageCMC <= 2.5)
+            total = "25";
+        else if(averageCMC > 2.5 && averageCMC <= 3.0)
+            total = "28";
+        else
+            total = "29";
+        Label totalLbl = new Label("Suggested total: " + total + "lands");
+        totalLbl.setFont(Font.font("Courier New", 15));
+        totalLbl.setPadding(new Insets(0,0,0,10));
+        gridPane.add(totalLbl,0,8);
+        totalLbl.setTooltip(new Tooltip("Adjust land total to around this amount"));
     }
     static void main(String[] args) {
         launch(args);
